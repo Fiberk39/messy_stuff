@@ -12,12 +12,6 @@ with open('cookie.txt', 'r', encoding='utf-8') as f:
 path = 'database.db'
 init_db(path)
 
-# if __name__ == '__main__':
-#     uid = input('请输入用户UID: ')
-#     data = find_all_data(uid, COOKIE)
-#     for user in data:
-#         add_user(path, user)
-
 def main():
     users_uid = get_all_undigged_users_uid(path)
     for uid in users_uid:
