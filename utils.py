@@ -162,3 +162,32 @@ def mark_user_as_digged(path, uid):
 
     conn.commit()
     conn.close()
+
+def find_user_info_by_uid(path, uid):
+    conn = sqlite3.connect(path)
+    cursor = conn.cursor()
+
+    cursor.execute("""--sql
+        SELECT * FROM user_info WHERE b_uid = ?
+    """, (uid,))
+    user_info = cursor.fetchone()
+
+    conn.close()
+    return user_info
+
+def find_user_relation_by_uid(path, uid):
+    conn = sqlite3.connect(path)
+    cursor = conn.cursor()
+
+    cursor.execute("""--sql
+        SELECT * FROM relation WHERE fan_uid = ?
+    """, (uid, uid))
+    user_follow = cursor.fetchall()
+
+    cursor.execute("""--sql
+        SELECT * FROM relation WHERE follow_uid = ?
+    """, (uid, uid))
+    user_fans = cursor.fetchall()
+
+    conn.close()
+    return user_follow, user_fans
