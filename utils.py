@@ -3,8 +3,10 @@ import sqlite3
 import requests
 import json
 
+conn = None
 
 def init_db(path: str):
+    global conn
     conn = sqlite3.connect(path)
     cursor = conn.cursor()
 
@@ -31,7 +33,6 @@ def init_db(path: str):
     """)
 
     conn.commit()
-    conn.close()
 
     print('√ initialized successfully')
 
@@ -63,7 +64,6 @@ def get_user_info(uid, cookie):
     return fans_res, follows_res, upstat_res, stat_res
 
 def add_user(path, data):
-    conn = sqlite3.connect(path)
     cursor = conn.cursor()
 
     cursor.execute("""--sql
@@ -83,9 +83,6 @@ def add_user(path, data):
         """, (data['fan'], data['uid']))
     else:
         print(f"Error: Missing 'following' or 'fan' key in data for user {data['uid']}")
-
-    conn.commit()
-    conn.close()
 
 def find_all_data(uid, cookie):
     res = []
@@ -140,7 +137,6 @@ def find_all_data(uid, cookie):
     return res
 
 def get_all_undigged_users_uid(path):
-    conn = sqlite3.connect(path)
     cursor = conn.cursor()
 
     cursor.execute("""--sql
@@ -149,22 +145,17 @@ def get_all_undigged_users_uid(path):
     undigged_users = cursor.fetchall()
     undigged_users = [user[0] for user in undigged_users]
 
-    conn.close()
     return undigged_users
 
 def mark_user_as_digged(path, uid):
-    conn = sqlite3.connect(path)
     cursor = conn.cursor()
 
     cursor.execute("""--sql
         UPDATE user_info SET digged = 1 WHERE b_uid = ?
     """, (uid,))
 
-    conn.commit()
-    conn.close()
 
 def find_user_info_by_uid(path, uid):
-    conn = sqlite3.connect(path)
     cursor = conn.cursor()
 
     cursor.execute("""--sql
@@ -172,11 +163,9 @@ def find_user_info_by_uid(path, uid):
     """, (uid,))
     user_info = cursor.fetchone()
 
-    conn.close()
     return user_info
 
 def find_user_relation_by_uid(path, uid):
-    conn = sqlite3.connect(path)
     cursor = conn.cursor()
 
     cursor.execute("""--sql
@@ -189,5 +178,11 @@ def find_user_relation_by_uid(path, uid):
     """, (uid, uid))
     user_fans = cursor.fetchall()
 
-    conn.close()
     return user_follow, user_fans
+
+def close_db():
+    global conn
+    if conn:
+        conn.commit()
+        conn.close()
+        conn = None
