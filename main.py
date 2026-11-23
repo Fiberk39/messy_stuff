@@ -4,6 +4,7 @@ import requests
 import json
 import time
 import random
+from pyvis.network import Network
 
 
 with open('cookie.txt', 'r', encoding='utf-8') as f:
@@ -14,6 +15,7 @@ init_db(path)
 
 def main():
     users_uid = get_all_undigged_users_uid(path)
+    users_uid = random.shuffle(users_uid)
     for uid in users_uid:
         init_db(path)
         print(f"正在处理 UID: {uid}")
